@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using OxyPlot.Series;
 using OxyPlot;
 using OxyPlot.Axes;
 using System.Windows.Threading;
+using MyoVisualizer.Data;
 
 namespace MyoVisualizer
 {
@@ -26,45 +28,107 @@ namespace MyoVisualizer
     public partial class MainWindow : Window
     {
 
-        private VisualizerAnalogProcessor processor;
-        private LineSeries lineSeries;
-        private const int viewSize = 100;
+        private VisualizerAnalogProcessor _processor;
+        private ScatterSeries _scatterSeries;
+        private const int viewSize = 5000;
+        private DispatcherTimer timer;
+        private int time;
+        private int count = 0;
+        private  short samplingClock = 1000;
+        private short eventSamplingCount = 100;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            short samplingClock = 1000;
-            short eventSamplingCount = 100;
-
-            processor = new VisualizerAnalogProcessor(samplingClock, eventSamplingCount, 2);
 
             var model = new PlotModel { Title = "Frequency Data" };
 
-            // Define x-axis with a scrolling window of size 'viewSize'
+
             model.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 Minimum = 0,
                 Maximum = viewSize,
                 AbsoluteMinimum = 0,
-                AbsoluteMaximum = 1000 // Adjust this to fit your needs
+                AbsoluteMaximum = (1000 * 60) * 15 // 上限は15分
             });
 
-            lineSeries = new LineSeries { StrokeThickness = 2 };
-            model.Series.Add(lineSeries);
+            _scatterSeries = new ScatterSeries { MarkerType = MarkerType.Circle, MarkerSize = 2  };
+            model.Series.Add(_scatterSeries);
 
             Plot.Model = model;
+            
+            _processor = new VisualizerAnalogProcessor(samplingClock, eventSamplingCount, 2);
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(100); 
+            timer.Tick += TimerTick;
+            Console.WriteLine("---- End init ----");
+        }
+        
+        private void TimerTick(object sender, EventArgs e)
+        {
+            time++;
+            
+            Console.Write($"data size {_processor.Data.Count} ");
+            
+            if (_processor.Data.Count == 0) return; 
+            
+            Console.Write($"data[0] size {_processor.Data[0].Count} count {count}\n");
+            if(count >= _processor.Data[0].Count)
+            {
+                return;
+            }
+
+            var newPoints = _processor.Data[0].Skip(count).ToList();
+            _scatterSeries.Points.AddRange(newPoints.Select((point, index) => new ScatterPoint(count + index, point)));
+
+
+            if (count > viewSize)
+            {
+                Plot.Model.Axes[0].Minimum = count - viewSize;
+                Plot.Model.Axes[0].Maximum = count;
+            }
+
+            count += newPoints.Count;
+
+
+            Plot.InvalidatePlot(true);
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            processor.Start();
+            Console.WriteLine($"Start Input");
+            _processor.Start();
+            timer.Start();
         }
 
         private void EndButton_Click(object sender, RoutedEventArgs e)
         {
-            processor.Stop();
+            _processor.Stop();
+            timer.Stop();
+            Save();
+        }
+        
+        private void Save(){
+            var endTime = DateTime.Now;
+
+            var hoge = new DataCommunicator();
+            var rawData = _processor.Data;
+            var dictionary = new Dictionary<string, List<object>>();
+            dictionary.Add("index", _processor.GetDataTime());
+            foreach (var list in rawData)
+            {
+                dictionary.Add($"Channel {list.Key.ToString()}", list.Value.Select(f => (object) f).ToList());
+            }
+            
+            hoge.SaveCsv($"./MyoData/Data_{DateTime.Now.ToString("yy-MM-dd_hh_mm_ss")}_{samplingClock}usec.csv", dictionary);
+            File.AppendAllLines($"./MyoData/_time.txt",
+                new[]
+                {
+                    $"Data_{DateTime.Now.ToString("yy-MM-dd_hh_mm_ss")}_{samplingClock}usec.csv, start={_processor.StartTime.ToString("hh:mm:ss.fff")}, end={endTime.ToString("hh:mm:ss.fff")}, elapsed={(DateTime.Now - _processor.StartTime)}"
+                });
+            Console.WriteLine($"end process. {DateTime.Now - _processor.StartTime}");
         }
 
     }

@@ -10,8 +10,8 @@ namespace MyoVisualizer.Analog
     public class AnalogProcessor
     {
 
-        private AnalogInputSystem _analog;
-        private Dictionary<short, List<float>> _data = new Dictionary<short, List<float>>();
+        protected AnalogInputSystem _analog;
+        protected Dictionary<short, List<float>> _data = new Dictionary<short, List<float>>();
         private int _cycleCount = 0;
         private short _samplingClock = 0;
         private DateTime _startTime = DateTime.Now, _lastTime;
