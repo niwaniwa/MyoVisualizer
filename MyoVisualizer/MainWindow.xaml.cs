@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -65,6 +66,8 @@ namespace MyoVisualizer
             timer.Tick += TimerTick;
             Console.WriteLine("---- End init ----");
         }
+
+        private int deleteIndex = 0;
         
         private void TimerTick(object sender, EventArgs e)
         {
@@ -83,16 +86,19 @@ namespace MyoVisualizer
             var newPoints = _processor.Data[0].Skip(count).ToList();
             _scatterSeries.Points.AddRange(newPoints.Select((point, index) => new ScatterPoint(count + index, point)));
 
-
+            count += newPoints.Count;
+            
+            deleteIndex = count;
+            
             if (count > viewSize)
             {
                 Plot.Model.Axes[0].Minimum = count - viewSize;
                 Plot.Model.Axes[0].Maximum = count;
+                _scatterSeries.Points.RemoveRange(0, newPoints.Count);
+    
+                
             }
-
-            count += newPoints.Count;
-
-
+            
             Plot.InvalidatePlot(true);
         }
 
