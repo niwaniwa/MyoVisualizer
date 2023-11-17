@@ -119,7 +119,9 @@ namespace MyoVisualizer.Analog
         }
 
         /// <summary>
-        /// サンプリング周波数の設定
+        /// サンプリングクロックの設定(サンプリング回数ではない)
+        /// 1000 usec = 毎秒1000回サンプリング
+        /// 2000 usec = 毎秒500回サンプリング
         /// </summary>
         /// <param name="microSec">マイクロ秒</param>
         public void SetAiSamplingClock(short microSec)

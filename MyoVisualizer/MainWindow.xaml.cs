@@ -31,12 +31,12 @@ namespace MyoVisualizer
 
         private VisualizerAnalogProcessor _processor;
         private ScatterSeries _scatterSeries;
-        private const int viewSize = 5000;
+        private const int viewSize = 6000;
         private DispatcherTimer timer;
         private int time;
         private int count = 0;
-        private  short samplingClock = 1000;
-        private short eventSamplingCount = 100;
+        private  short samplingClock = 500;
+        private short eventSamplingCount = 200;
 
         public MainWindow()
         {
@@ -52,7 +52,7 @@ namespace MyoVisualizer
                 Minimum = 0,
                 Maximum = viewSize,
                 AbsoluteMinimum = 0,
-                AbsoluteMaximum = (1000 * 60) * 15 // 上限は15分
+                AbsoluteMaximum = (2000 * 60) * 20 // 上限は10分
             });
 
             _scatterSeries = new ScatterSeries { MarkerType = MarkerType.Circle, MarkerSize = 2  };
@@ -62,7 +62,7 @@ namespace MyoVisualizer
             
             _processor = new VisualizerAnalogProcessor(samplingClock, eventSamplingCount, 2);
             timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(100); 
+            timer.Interval = TimeSpan.FromMilliseconds(500); 
             timer.Tick += TimerTick;
             Console.WriteLine("---- End init ----");
         }
@@ -95,8 +95,6 @@ namespace MyoVisualizer
                 Plot.Model.Axes[0].Minimum = count - viewSize;
                 Plot.Model.Axes[0].Maximum = count;
                 _scatterSeries.Points.RemoveRange(0, newPoints.Count);
-    
-                
             }
             
             Plot.InvalidatePlot(true);
