@@ -32,12 +32,12 @@ namespace MyoVisualizer
         private VisualizerAnalogProcessor _processor;
         private ScatterSeries _scatterSeries1;
         private ScatterSeries _scatterSeries2;
-        private const int viewSize = 5800;
+        private const int viewSize = 5000;
         private DispatcherTimer timer;
         private int time;
         private int count = 0;
-        private  short samplingClock = 256;
-        private short eventSamplingCount = 500;
+        private  short samplingClock = 500;
+        private short eventSamplingCount = 256;
         private bool isRecording = false;
         private int sizeLimit = (2000 * 60) * 25; // 上限は25分]
         private Stopwatch _stopwatch;
@@ -169,7 +169,7 @@ namespace MyoVisualizer
             dictionary.Add("index", _processor.GetDataTime());
             foreach (var list in rawData)
             {
-                dictionary.Add($"Channel {list.Key.ToString()}", list.Value.Select(f => (object) f).ToList());
+                dictionary.Add($"Channel {(list.Key + 1).ToString()}", list.Value.Select(f => (object) f).ToList());
             }
             
             hoge.SaveCsv($"./MyoData/Data_{DateTime.Now.ToString("yy-MM-dd_hh_mm_ss")}_{samplingClock}usec.csv", dictionary);
