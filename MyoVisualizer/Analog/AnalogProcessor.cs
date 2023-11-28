@@ -38,7 +38,7 @@ namespace MyoVisualizer.Analog
             _samplingClock = samplingClock;
             unsafe
             {
-                Console.WriteLine($"---- Initializing ----");
+                
                 _analog = new AnalogInputSystem("AIO000");
                 _analog.SetInputMethod(0);
                 _analog.SetAiRangeAll((short)CaioConst.PM25);

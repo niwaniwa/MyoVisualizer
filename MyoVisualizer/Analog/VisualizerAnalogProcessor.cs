@@ -21,7 +21,7 @@ namespace MyoVisualizer.Analog
         public override unsafe int CallBackProc(short Id, short Message, int wParam, int lParam, void* Param)
         {
             base.CallBackProc(Id, Message, wParam, lParam, Param);
-            Console.WriteLine($"Cycle {++_cycleCount}: Sampling Count {lParam} : lastdata {_data[0].Last()}");
+            // Console.WriteLine($"Cycle {++_cycleCount}: Sampling Count {lParam} : lastdata {_data[0].Last()}");
             return 0;
         }
 

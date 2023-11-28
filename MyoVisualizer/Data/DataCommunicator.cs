@@ -38,7 +38,6 @@ namespace MyoVisualizer.Data
                 var temp = new StringBuilder();
                 for (int j = 0; j < dataList.Count; j++)
                 {
-
                     temp.Append($"{(i + 1 <= dataList[j].Count ? $"{dataList[j][i]}" : "0")},");
                 }
                 
