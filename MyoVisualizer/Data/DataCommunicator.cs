@@ -29,7 +29,7 @@ namespace MyoVisualizer.Data
             var dataLineArray = new List<string>();
             
             data.Keys.ToList().ForEach(key => label.Append($"{key},")); // label作成
-            dataLineArray.Add(label.ToString());
+            dataLineArray.Add(label.ToString().TrimEnd(','));
             var dataList = data.Values.ToList();
             var maxDataCount = dataList.Select(i => i.Count).Max();
 
@@ -41,7 +41,7 @@ namespace MyoVisualizer.Data
                     temp.Append($"{(i + 1 <= dataList[j].Count ? $"{dataList[j][i]}" : "0")},");
                 }
                 
-                dataLineArray.Add($"{temp}");
+                dataLineArray.Add($"{temp.ToString().TrimEnd(',')}");
             }
 
             File.WriteAllLines(path, dataLineArray.ToArray(), Encoding.UTF8);
